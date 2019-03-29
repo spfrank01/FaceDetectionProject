@@ -1,0 +1,20 @@
+
+virtualenv --python "C:\Users\spFrank\AppData\Local\Programs\Python\Python36\python.exe" env
+
+Note the connection string, database user, and database password that you create.
+
+SET GOOGLE_APPLICATION_CREDENTIALS=/face-detect-229308-194d1c24967c.json
+SET CLOUD_SQL_CONNECTION_NAME='face-detect-229308:asia-east2:face-database'
+SET DB_USER='webapp'
+SET DB_PASS='webapp'
+SET DB_NAME='FaceDetectionProject'
+
+cloud_sql_proxy -dir=/cloudsql --instances='face-detect-229308:asia-east2:face-database' --credential_file=face-detect-229308-194d1c24967c.json
+
+cloud_sql_proxy -instances='face-detect-229308:asia-east2:face-database'=tcp:3306
+
+.\env\Scripts\activate //connnect to ENV
+gcloud app deploy --version=20190328t142717 //deploy app engine
+
+
+

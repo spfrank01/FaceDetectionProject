@@ -1,0 +1,79 @@
+
+{% extends "layout.html" %}
+{% block body %}
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function() {
+                // Use a "/live_camera" namespace.
+                // An application can open a connection on multiple namespaces, and
+                // Socket.IO will multiplex all those connections on a single
+                // physical channel. If you don't care about multiple channels, you
+                // can set the namespace to an empty string.
+                namespace = '/search';
+    
+                // Connect to the Socket.IO server.
+                // The connection URL has the following format:
+                //     http[s]://<domain>:<port>[/<namespace>]
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+    
+    
+                // Event handler for server sent data.
+                // The callback function is invoked whenever the server emits data
+                // to the client. The data is then displayed in the "Received"
+                // section of the page.
+                socket.on('my_response', function(msg) {
+                    $('#log').append('<br>' + $('<div/>').text('Received : ' + msg.time_detect).html());
+                    console.log(msg.time_detect)
+                    console.log(msg.face_image)
+
+                    $('#myImg').empty(); //ทำให้ id นี้ว่าง
+                    msg.face_image.forEach(function(val, i) {
+                        console.log(val);
+                        $('#myImg').append('<img src=' + val + '>'); // เพิ่มรูปใน ID myTmg
+                    });
+
+                    $('#myTime').empty();
+                    msg.time_detect.forEach(function(val){
+                        $('#myTime').append(val+'<br>')
+                    });
+                    //time_detect = msg.time_detect.slice(1, -1).split(",").map(Number)
+                    //time_detect.forEach((item, i) => time_detect[i] = new Date(item));
+    
+                    //all_rows = []
+                    //for(t=0; t<time_detect.length; t++){
+                    //    all_rows.push([t, 1, undefined, undefined])
+                    // }
+                    //console.log(all_rows)
+                });
+    
+    
+                // Handlers for the different forms in the page.
+                // These accept data from the user and send it to the server in a
+                // variety of ways
+                $('form#emit').submit(function(event) {
+                    socket.emit('my_event', {keyword: $('#keyword').val()});
+                    $('#send').empty();
+                    $('#send').append('<br>' + $('<div/>').text(" Search : "+$('#keyword').val()).html());
+                    return false;
+                });
+    
+            });
+        </script>
+    <h1>Flask-SocketIO Test SEND</h1>
+    <p>Async mode is: <b>{{ async_mode }}</b></p>
+    <h2>Send:</h2>
+    <form id="emit" method="POST" action='#'>
+        <input type="number" name="keyword" id="keyword" placeholder="Message">
+        <input type="submit" value="Search">
+    </form>
+
+    Search 
+    <div id="send"></div>
+
+    <h2>Receive:</h2>
+    <div id="log"></div>
+
+    <div id="myImg"></div>
+
+    <div id="myTime"></div>
+
+    {% endblock %}

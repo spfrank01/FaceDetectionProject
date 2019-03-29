@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Dashboard - Face Detection with CCTV</title>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+	<div id='chart_div' style='width: 500px; height: 250px;'></div>
+
+	<script>
+		//data = '{{ NumberPeople }}'.slice(1, -1).split(",").map(Number)
+
+		//labels = '{{ EachTimestamp }}'.slice(1, -1).split(",").map(Number)
+		//labels.forEach((item, i) => labels[i] = new Date(item));
+		
+		//console.log(data, labels)
+	
+		google.charts.load('current', {'packages':['annotationchart']});
+      	google.charts.setOnLoadCallback(drawChart);
+
+		function drawChart() {
+			var data = new google.visualization.DataTable();
+			data.addColumn('date', 'Date');
+			data.addColumn('number', 'Kepler-22b mission');
+			data.addColumn('string', 'Kepler title');
+			data.addColumn('string', 'Kepler text');
+			data.addRows([
+			[new Date(2314, 2, 15), 12400, undefined, undefined],
+			[new Date(2314, 2, 16), 24045, undefined, undefined],
+			[new Date(2314, 2, 17), 35022, undefined, undefined],
+			[new Date(2314, 2, 18), 12284, undefined, undefined],
+			[new Date(2314, 2, 19), 8476, undefined, undefined],
+			[new Date(2314, 2, 20), 0, undefined, undefined],
+			[new Date(2314, 2, 21), 1000, undefined, undefined]
+			]);
+			
+			var chart = new google.visualization.AnnotationChart(document.getElementById('chart_div'));
+
+			var options = {
+			displayAnnotations: true
+			
+			};
+			chart.draw(data, options);
+		}
+	</script>
+</body>
+</html>
