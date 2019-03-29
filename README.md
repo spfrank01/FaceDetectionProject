@@ -1,6 +1,7 @@
-
+# Step for deploy app
 
 .\env\Scripts\activate //connnect to ENV 
+
 gcloud app deploy --version=20190328t142717 //deploy app engine
 
 --------------------------------------------------------------
