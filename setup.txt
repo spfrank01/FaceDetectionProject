@@ -1,6 +1,7 @@
 
 virtualenv --python "C:\Users\spFrank\AppData\Local\Programs\Python\Python36\python.exe" env
-
+pip install -r requirements.txt
+pip freeze > requirements.txt
 Note the connection string, database user, and database password that you create.
 
 SET GOOGLE_APPLICATION_CREDENTIALS=/face-detect-229308-194d1c24967c.json

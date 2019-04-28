@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, Response
 from flask_socketio import SocketIO, emit
 import sqlalchemy
 from scipy.spatial import distance
+from flask_bootstrap import Bootstrap
 
 # Remember - storing secrets in plaintext is potentially unsafe. Consider using
 # something like https://cloud.google.com/kms/ to help keep secrets secret.
@@ -15,6 +16,7 @@ db_name = os.environ.get("DB_NAME")
 cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
 
 app = Flask(__name__)
+bootstrap = Bootstrap(app)
 
 async_mode = None
 app.config['SECRET_KEY'] = 'secret!'
@@ -67,6 +69,9 @@ def dashboard():
         NumberPeople =NumberPeople,
         EachTimestamp = EachTimestamp
     )
+
+"""def layout():
+    return render_template('layout.html', bootstrap=Bootstrap(app))"""
 
 @app.route('/live')
 def live():
@@ -132,7 +137,7 @@ def addCameraLogs():
         
         #check face vector from device is same identity from database
         #if not same, add new identity to SQL table FaceIdentityStore
-        threshold = 0.75
+        threshold = 1.062 #0.75
         minimal_distance = threshold
         distance_each = []
         face_identity = False

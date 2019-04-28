@@ -1,4 +1,5 @@
-
+<!--<html style="background-color:#CCFFFF;">-->
+<html style="background-image: url({{ url_for('static', filename='img/wb.jpg') }})">
 {% extends "layout.html" %}
 {% block body %}
         <script type="text/javascript" charset="utf-8">
@@ -21,7 +22,11 @@
                 // to the client. The data is then displayed in the "Received"
                 // section of the page.
                 socket.on('my_response', function(msg) {
+                    //var time_det = Date(msg.time_detect * 1000).toISOString().slice(0, 19).replace('T', ' ')
+                    //var convdataTime = new Date(msg.time_detect * 1000).toISOString().slice(0, 19).replace('T', ' ')
+                    //$('#log').append('<br>' + $('<div/>').text('Received : ' + msg.time_detect).html());
                     $('#log').append('<br>' + $('<div/>').text('Received : ' + msg.time_detect).html());
+                    //console.log(msg.time_detect)
                     console.log(msg.time_detect)
                     console.log(msg.face_image)
 
@@ -31,10 +36,12 @@
                         $('#myImg').append('<img src=' + val + '>'); // เพิ่มรูปใน ID myTmg
                     });
 
-                    $('#myTime').empty();
+                    /**$('#myTime').empty();
                     msg.time_detect.forEach(function(val){
                         $('#myTime').append(val+'<br>')
-                    });
+                    });**/
+
+                   
                     //time_detect = msg.time_detect.slice(1, -1).split(",").map(Number)
                     //time_detect.forEach((item, i) => time_detect[i] = new Date(item));
     
@@ -43,6 +50,52 @@
                     //    all_rows.push([t, 1, undefined, undefined])
                     // }
                     //console.log(all_rows)
+                    //////////////////////////// convert unix timestamp format/////////////////////
+                    console.log(msg.time_detect)
+                    console.log(msg.time_detect[0])
+                    //console.log(msg.time_detect.value)
+                    // Unixtimestamp
+                    var unixtimestamp = msg.time_detect[0];
+
+                    // Months array
+                    var months_arr = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+                    // Convert timestamp to milliseconds
+                    var date = new Date(unixtimestamp*1000);
+
+                    // Year
+                    var year = date.getFullYear();
+
+                    // Month
+                    var month = months_arr[date.getMonth()];
+
+                    // Day
+                    var day = date.getDate();
+
+                    // Hours
+                    var hours = date.getHours();
+
+                    // Minutes
+                    var minutes = "0" + date.getMinutes();
+
+                    // Seconds
+                    var seconds = "0" + date.getSeconds();
+
+                    // Display date time in MM-dd-yyyy h:m:s format
+                    var convdataTime = month+'-'+day+'-'+year+' '+hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                    console.log(typeof(convdataTime))
+                    console.log(convdataTime)
+                    
+                    document.getElementById("demo").innerHTML = convdataTime;
+                    
+                    /**$('#convTime').empty();
+                    convdataTime.forEach(function(val){
+                        $('#convTime').append(val+'<br>')
+                    });**/
+
+                   
+                    
+
                 });
     
     
@@ -58,22 +111,60 @@
     
             });
         </script>
-    <h1>Flask-SocketIO Test SEND</h1>
-    <p>Async mode is: <b>{{ async_mode }}</b></p>
-    <h2>Send:</h2>
-    <form id="emit" method="POST" action='#'>
-        <input type="number" name="keyword" id="keyword" placeholder="Message">
+    
+    <style>
+        .grid-container {
+          display: grid;
+          height: 400px;
+          align-content: center;
+          grid-template-columns: auto auto auto;
+          grid-gap: 10px;
+          background-color: #2196F3;
+          padding: 10px;
+        }
+        
+        .grid-container > div {
+          
+          text-align: center;
+          padding: 20px 0;
+          font-size: 30px;
+        }
+    </style>
+
+<h1 align="center" text-align: center;>Flask-SocketIO Test SEND</h1>
+<p align="center" text-align: center;>Async mode is: <b>{{ async_mode }}</b></p>
+<h2 align="center" text-align: center;>Send:</h2>
+
+<!--<form id="emit" method="POST" action='#'>
+<input class="input100" type="text" name="keyword" id="keyword" STYLE="background-color: #FFFFFF;" placeholder="Message">
+<input type="submit" value="Search">
+</form>
+background-color: rgba(255, 255, 255, 0.8);
+-->
+                        
+
+
+<div class="grid-container">
+    <div></div>
+    <div style="background-color:rgba(255, 255, 255, 0.8);">
+        <form id="emit" method="POST" action='#'>
+        <input class="input100" type="text" name="keyword" id="keyword" STYLE="background-color: #FFFFFF;" placeholder="Message">
         <input type="submit" value="Search">
-    </form>
+        </form>
+    </div>
+    <div></div>  
+    <div></div>
+    <div id="send" style="background-color:rgba(255, 255, 255, 0.8);">Search</div>
+    <div></div>
+  </div>
 
-    Search 
-    <div id="send"></div>
-
-    <h2>Receive:</h2>
-    <div id="log"></div>
-
-    <div id="myImg"></div>
-
-    <div id="myTime"></div>
-
-    {% endblock %}
+<div align="center" style="background-color: rgba(255, 255, 255, 0.5);">
+<h2>Receive:</h2>
+<div id="log"></div>
+<div id="myImg"></div>
+<div id="myTime"></div>
+<!--<div id="convTime"></div>-->
+<span id="demo"></span>
+{% endblock %}
+</div>
+</html>

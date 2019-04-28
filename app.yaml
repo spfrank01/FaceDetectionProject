@@ -18,7 +18,7 @@ runtime: python37
 # something like https://cloud.google.com/kms/ to help keep secrets secret.
 env_variables:
   #CLOUD_SQL_INSTANCE_NAME: 'face-detect-229308:asia-east2:face-database'
-  CLOUD_SQL_CONNECTION_NAME: 'face-detect-229308:asia-east2:face-database'
+  CLOUD_SQL_CONNECTION_NAME: 'kmutnb-face-id:asia-east2:face-database-1'
   DB_USER: 'webapp'
   DB_PASS: 'webapp'
   DB_NAME: 'FaceDetectionProject'

@@ -1,4 +1,6 @@
 ﻿{% extends "layout.html" %}
+
+<div  align="center">
 {% block body %}
 	<div id='chart_div' style='width: 900px; height: 500px;'></div>
 
@@ -32,4 +34,5 @@
 			chart.draw(data, options);
 		}
 	</script>
-    {% endblock %}
+	{% endblock %}
+</div>
