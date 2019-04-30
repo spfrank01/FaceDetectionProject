@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, Response
 from flask_socketio import SocketIO, emit
 import sqlalchemy
 from scipy.spatial import distance
-from flask_bootstrap import Bootstrap
+##from flask_bootstrap import Bootstrap
 
 # Remember - storing secrets in plaintext is potentially unsafe. Consider using
 # something like https://cloud.google.com/kms/ to help keep secrets secret.
@@ -16,7 +16,7 @@ db_name = os.environ.get("DB_NAME")
 cloud_sql_connection_name = os.environ.get("CLOUD_SQL_CONNECTION_NAME")
 
 app = Flask(__name__)
-bootstrap = Bootstrap(app)
+#bootstrap = Bootstrap(app)
 
 async_mode = None
 app.config['SECRET_KEY'] = 'secret!'
@@ -88,8 +88,8 @@ def test_message(message):
         face_identity = message['keyword']
 
         stmt = sqlalchemy.text(
-                    "SELECT UNIX_TIMESTAMP(TimeDetect), FaceImage FROM CameraLogs "
-                    "WHERE FaceID IN ( SELECT FaceID FROM FaceIdentityStore "
+                    "SELECT TimeDetect, FaceImage FROM CameraLogs "
+                    "WHERE FaceID IN ( SELECT FaceID FROM FaceIDStore "
                                         "WHERE IdentificationNumber=(:face_id) "
                                         "OR StudentIDNumber=(:face_id) "
                                         "OR FaceID=(:face_id) ) "
@@ -101,7 +101,7 @@ def test_message(message):
                 time_detect = []
                 face_image = []
                 for val in results:
-                    time_detect.append(val[0])
+                    time_detect.append(str(val[0]) )
                     face_image.append(val[1])
                 emit('my_response', {'time_detect': time_detect, 'face_image': face_image} )
         except Exception as e:
@@ -109,6 +109,41 @@ def test_message(message):
 def isID(keyword):
     return True 
 
+@app.route('/add_new_student', methods=['POST'])
+def addNewStudent():
+    if not request.json or not 'studentInfo' in request.json:
+        return Response(
+                status=400,
+                response="not have json object or studentInfo values in json"
+            )
+
+    studentInfo = request.json["studentInfo"]
+    _, face_id = get_face_vector_from_cloud_sql()
+    face_identity = len(face_id)+1
+
+
+    stmt = sqlalchemy.text(
+        "INSERT FaceIDStore(FaceID, FaceName, FaceVector, FaceImage, StudentIDNumber)"
+        " VALUES (:face_id, :face_name, :face_vector, :face_image, :student_id_number); "
+    )
+    try:
+        with db.connect() as conn:
+            conn.execute(stmt, 
+                        face_id=int(face_identity), 
+                        face_name=str(studentInfo['face_name']),
+                        face_vector=str(studentInfo['face_vector']),
+                        face_image=str(studentInfo['face_image'] ),
+                        student_id_number=str(studentInfo['student_id_number']) )
+    except Exception as e:
+        logger.exception(e)
+        return Response(
+            status=500,
+            response="unsuccessful INSERT new Identity to cloud SQL"
+        )
+    return Response(
+        status=201,
+        response="Successful!! Add new Student Info complete"
+    )
 
 @app.route('/add_camera_logs', methods=['POST'])
 def addCameraLogs():
@@ -136,7 +171,7 @@ def addCameraLogs():
         face_image.append( log['face_image'] )
         
         #check face vector from device is same identity from database
-        #if not same, add new identity to SQL table FaceIdentityStore
+        #if not same, add new identity to SQL table FaceIDStore
         threshold = 1.062 #0.75
         minimal_distance = threshold
         distance_each = []
@@ -155,11 +190,11 @@ def addCameraLogs():
                 face_identity = face_id[face_index]
         distance_all.append(minimal_distance)
         distance_each_all.append(distance_each)
-        if minimal_distance == threshold:
+        if minimal_distance >= threshold:
             # INSERT NEW IDENTITY if NOT FIND MINIMAL Distance
             face_identity = len(face_id)+1+idx
             stmt = sqlalchemy.text(
-                "INSERT FaceIdentityStore(FaceID, FaceVector, FaceImage)"
+                "INSERT FaceIDStore(FaceID, FaceVector, FaceImage)"
                 " VALUES (:face_id, :face_vector, :face_image); "
             )
             try:
@@ -225,7 +260,7 @@ def get_face_vector_from_cloud_sql():
     face_id = []
     with db.connect() as conn:
         query_all_rows = conn.execute(
-            "SELECT FaceVector, FaceID FROM FaceIdentityStore; "
+            "SELECT FaceVector, FaceID FROM FaceIDStore; "
         ).fetchall()
 
         for row in query_all_rows:
