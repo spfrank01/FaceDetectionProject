@@ -146,6 +146,7 @@ def addNewStudent():
     )
 
 @app.route('/add_camera_logs', methods=['POST'])
+#@socketio.on('my_event', namespace='/live_camera')
 def addCameraLogs():
     return_data = []
     logging.error("addCameraLogs")
@@ -155,6 +156,7 @@ def addCameraLogs():
                 response="not have json object or logs values in json"
             )
     logs = request.json["logs"]
+    full_image = request.json["full_image"]
 
     face_vector, face_id = get_face_vector_from_cloud_sql()
 
@@ -166,9 +168,9 @@ def addCameraLogs():
     face_image = []
     
     for idx, log in enumerate(logs):
-        camera_id = log['camera_id']
-        time_detect = log['time_detect']
-        face_image.append( log['face_image'] )
+        camera_id = str(log['camera_id'])
+        time_detect = str(log['time_detect'])
+        face_image.append( str(log['face_image']) )
         
         #check face vector from device is same identity from database
         #if not same, add new identity to SQL table FaceIDStore
@@ -178,10 +180,12 @@ def addCameraLogs():
         face_identity = False
         for face_index, vector_each in enumerate(face_vector):
             if len([float(i) for i in vector_each[1:-1].split(",")]) != len([float(i) for i in log['face_vector'][1:-1].split(",")]):
+                continue
                 return Response(
                     status=401,
                     response="length of face vector not match at FaceID : "+str(face_id[face_index])
                         )
+                continue
             #distance_cal =  distance.euclidean(vector_each, log['face_vector'])
             distance_cal =  distance.euclidean([float(i) for i in vector_each[1:-1].split(",")], [float(i) for i in log['face_vector'][1:-1].split(",")])
             distance_each.append(distance_cal)
@@ -210,7 +214,7 @@ def addCameraLogs():
                     response="unsuccessful INSERT new Identity to cloud SQL"
                         )
         if face_identity:
-            face_id_array.append(face_identity)           
+            face_id_array.append(str(face_identity))           
         #INSERT LOGS TO CLOUD SQL
         stmt = sqlalchemy.text(
             "INSERT CameraLogs(CameraID, FaceID, TimeDetect, FaceImage)"
@@ -236,10 +240,15 @@ def addCameraLogs():
                   "camera_id" : camera_id,  # String 
                   "face_id": face_id_array, # Array
                   "time_detect": time_detect,
-                  "face_image" : face_image 
+                  "face_image" : face_image,
+                  "full_image" : full_image
                 }
         emit('my_response',
             live_data,namespace='/live_camera', broadcast=True)
+        return Response(
+            status=200,
+            response=str(live_data)
+        )
     except Exception as e:
         logger.exception(e)
         return Response(
@@ -254,6 +263,8 @@ def addCameraLogs():
             response=str(return_data),
             status=201
         )
+
+
 
 def get_face_vector_from_cloud_sql():
     face_vector = []

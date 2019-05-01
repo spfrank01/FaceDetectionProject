@@ -28,12 +28,18 @@
             // section of the page.
             socket.on('my_response', function(msg) {
                 console.log(msg)
-                //$('#log').empty();
-				$('#log').append('<br>' + $('<div/>').text('Received #' + msg.camera_id + ': ' + msg.face_id + ': ' + msg.time_detect).html());
+                $('#cameraID').empty();
+                $('#cameraID').append("Camera ID : "+msg.camera_id+"<br>");
+                
+                $('#timeDetect').empty();
+                $('#timeDetect').append("Time Detection : "+msg.time_detect+"<br>");
+
+
+                $('#fullImage').empty();
+                $('#fullImage').append('<img src=' + msg.full_image + '><br>');
                 
                 $('#myImg').empty(); //ทำให้ id นี้ว่าง
                 msg.face_image.forEach(function(val, i) {
-                    console.log(val);
                     $('#myImg').append('<img src=' + val + '>'); // เพิ่มรูปใน ID myTmg
                 });
             });
@@ -41,12 +47,12 @@
         });
     </script>
 <div align="center" style="background-color: rgba(255, 255, 255, 0.5);">
-    <h1>Flask-SocketIO Test LIVE</h1>
-    <p>Async mode is: <b>{{ async_mode }}</b></p>
     
     <h2>Receive:</h2>
-    <div id="log"></div>
+    <div id="cameraID"></div>
+    <div id="timeDetect"></div>
 
+    <div id="fullImage"></div>
     <div id="myImg"></div>
     
     {% endblock %}
