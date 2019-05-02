@@ -1,4 +1,8 @@
 
+<!--  bootstrap
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
+-->
 {% extends "layout.html" %}
 
 {% block body %}
@@ -36,24 +40,44 @@
 
 
                 $('#fullImage').empty();
-                $('#fullImage').append('<img src=' + msg.full_image + '><br>');
+                $('#fullImage').append('<img src=' + msg.full_image + ' width="960"><br>');
                 
                 $('#myImg').empty(); //ทำให้ id นี้ว่าง
                 msg.face_image.forEach(function(val, i) {
-                    $('#myImg').append('<img src=' + val + '>'); // เพิ่มรูปใน ID myTmg
+                    //$('#myImg').append('<img src=' + val + '>'); // เพิ่มรูปใน ID myTmg
+                data_show = '<div style="border:1px solid black;"><img src=' + msg.face_image[i] + ' height="200"><br>'+msg.face_id[i]+'</div>';
+                $('#myImg').append(data_show);
                 });
             });
 			
         });
     </script>
+
+<style>
+    .grid-container2 {
+      display: grid;
+      height: auto;
+      align-content: center;
+      grid-template-columns: auto auto auto auto auto auto auto auto;
+      grid-gap: 10px;
+      padding: 10px;
+    }
+    
+    .grid-container2 > div {
+      
+      text-align: center;
+      padding: 20px 0;
+    }
+</style>
+
 <div align="center" style="background-color: rgba(255, 255, 255, 0.5);">
     
-    <h2>Receive:</h2>
     <div id="cameraID"></div>
     <div id="timeDetect"></div>
 
     <div id="fullImage"></div>
-    <div id="myImg"></div>
+    <div class="grid-container2" id="myImg"></div>
+    <!--<div id="myImg"></div>-->
     
     {% endblock %}
 </div>

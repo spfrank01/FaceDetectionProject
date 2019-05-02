@@ -25,7 +25,9 @@
                     
                     $('#show').empty();
                     for(i=0; i<msg.face_image.length; i++) {
-                        data_show = '<img src=' + msg.face_image[i] + '><br>'+msg.time_detect[i]+'<br>';
+                        //data_show = '<img src=' + msg.face_image[i] + '><br>'+msg.time_detect[i]+'<br>';
+                        //data_show = '<span style="white-space: pre-wrap;"><img src=' + msg.face_image[i] + '>' + '&NewLine;' + msg.time_detect[i] + '</span>';
+                        data_show = '<div style="border:1px solid black;"><img src=' + msg.face_image[i] + ' height="200"><br>'+msg.time_detect[i]+'</div>';
                         $('#show').append(data_show);
                     }
                     console.log(msg.time_detect)                 
@@ -38,7 +40,7 @@
                 $('form#emit').submit(function(event) {
                     socket.emit('my_event', {keyword: $('#keyword').val()});
                     $('#send').empty();
-                    $('#send').append('<br>' + $('<div/>').text(" Search : "+$('#keyword').val()).html());
+                   $('#send').append('<br>' + $('<div/>').text(" Search : "+$('#keyword').val()).html());
                     return false;
                 });
     
@@ -62,6 +64,38 @@
           padding: 20px 0;
           font-size: 30px;
         }
+
+        .grid-container2 {
+          display: grid;
+          height: auto;
+          align-content: center;
+          grid-template-columns: auto auto auto auto auto auto auto auto;
+          grid-gap: 10px;
+          padding: 10px;
+        }
+        
+        .grid-container2 > div {
+          
+          text-align: center;
+          padding: 20px 0;
+        }
+
+        * {
+          box-sizing: border-box;
+        }
+
+        body {
+          margin: 0;
+          font-family: Arial;
+        }
+
+        /* The grid: Four equal columns that floats next to each other */
+        .column {
+          float: center;
+          padding: 10px;
+        }
+
+
     </style>
 
 
@@ -90,15 +124,22 @@ background-color: rgba(255, 255, 255, 0.8);
   </div>
 
 <div align="center" style="background-color: rgba(255, 255, 255, 0.5);">
-<h2>Result:</h2>
+<h2>Search Result</h2>
 <div id="log"></div>
-<div id="myImg"></div>
-<div id="myTime"></div>
 
-<br>
-<div id="show"></div>
-<!--<div id="convTime"></div>-->
+<!--<div class="row">
+<div class="column" id="show">
+      </div>
+    </div>-->
+       
+<!--<div id="myImg"></div>
+<div id="myTime"></div>
 <span id="demo"></span>
-{% endblock %}
+<div id="show"></div>-->
+
 </div>
+
+<div class="grid-container2" id="show"></div>
+
+  {% endblock %}
 </html>

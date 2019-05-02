@@ -7,7 +7,7 @@ from flask_socketio import SocketIO, emit
 import sqlalchemy
 from scipy.spatial import distance
 ##from flask_bootstrap import Bootstrap
-
+import secrets
 # Remember - storing secrets in plaintext is potentially unsafe. Consider using
 # something like https://cloud.google.com/kms/ to help keep secrets secret.
 db_user = os.environ.get("DB_USER")
@@ -146,7 +146,6 @@ def addNewStudent():
     )
 
 @app.route('/add_camera_logs', methods=['POST'])
-#@socketio.on('my_event', namespace='/live_camera')
 def addCameraLogs():
     return_data = []
     logging.error("addCameraLogs")
@@ -158,7 +157,8 @@ def addCameraLogs():
     logs = request.json["logs"]
     full_image = request.json["full_image"]
 
-    face_vector, face_id = get_face_vector_from_cloud_sql()
+    #face_vector, face_id = get_face_vector_from_cloud_sql()
+    face_vector, face_id, face_name, sid = get_data_from_cloud_sql()
 
     face_id_array = []
     camera_id = ''
@@ -192,11 +192,13 @@ def addCameraLogs():
             if distance_cal < minimal_distance:
                 minimal_distance = distance_cal
                 face_identity = face_id[face_index]
+                face_index_out = face_index
         distance_all.append(minimal_distance)
         distance_each_all.append(distance_each)
         if minimal_distance >= threshold:
             # INSERT NEW IDENTITY if NOT FIND MINIMAL Distance
             face_identity = len(face_id)+1+idx
+            face_id_array.append(face_identity) 
             stmt = sqlalchemy.text(
                 "INSERT FaceIDStore(FaceID, FaceVector, FaceImage)"
                 " VALUES (:face_id, :face_vector, :face_image); "
@@ -213,8 +215,33 @@ def addCameraLogs():
                     status=500,
                     response="unsuccessful INSERT new Identity to cloud SQL"
                         )
-        if face_identity:
-            face_id_array.append(str(face_identity))           
+        else:
+            #stmt = sqlalchemy.text(
+            #        "SELECT FaceName, StudentIDNumber, FaceID FROM FaceIDStore"
+            #        " WHERE FaceID = (:face_id); "
+            #    )
+            #with db.connect() as conn:
+            #    query_result = conn.execute(stmt, face_id=face_identity )
+            #    query_result = query_result[0]
+            #    face_id_temp = ''
+            #    if len(query_result[0])>0:
+            #        face_id_temp += query_result[0] + '<br>'
+            #    if len(query_result[1])>0:
+            #        face_id_temp += query_result[1] + '<br>'
+            #    if len(query_result[2])>0:
+            #    face_id_temp += face_identity
+            #    
+            #    face_id_array.append(face_id_temp) 
+            face_id_temp = ''
+            #if len(face_name[face_index_out]) > 0:
+            if face_name[face_index_out]:
+                face_id_temp += face_name[face_index_out] + '<br>'
+            #if len(sid[face_index_out]) > 0:
+            if sid[face_index_out]:
+                face_id_temp += str(sid[face_index_out]) + '<br>'
+            
+            face_id_array.append(face_id_temp+str(face_identity) )
+                
         #INSERT LOGS TO CLOUD SQL
         stmt = sqlalchemy.text(
             "INSERT CameraLogs(CameraID, FaceID, TimeDetect, FaceImage)"
@@ -264,8 +291,6 @@ def addCameraLogs():
             status=201
         )
 
-
-
 def get_face_vector_from_cloud_sql():
     face_vector = []
     face_id = []
@@ -279,6 +304,24 @@ def get_face_vector_from_cloud_sql():
             face_id.append(row[1])
 
     return face_vector, face_id
+
+def get_data_from_cloud_sql():
+    face_vector = []
+    face_id = []
+    face_name = []
+    sid = []
+    with db.connect() as conn:
+        query_all_rows = conn.execute(
+            "SELECT FaceVector, FaceID, FaceName, StudentIDNumber  FROM FaceIDStore; "
+        ).fetchall()
+
+        for row in query_all_rows:
+            face_vector.append(row[0])
+            face_id.append(row[1])
+            face_name.append(row[2])
+            sid.append(row[3])
+
+    return face_vector, face_id, face_name, sid
 
 
 if __name__ == '__main__':
