@@ -4,7 +4,7 @@
 
 gcloud app deploy --version=20190328t142717 //deploy app engine
 
-gcloud app deploy -q //auto yes
+gcloud app deploy -q   //auto yes
 
 --------------------------------------------------------------
 
