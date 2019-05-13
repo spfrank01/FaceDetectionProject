@@ -174,7 +174,7 @@ def addCameraLogs():
         
         #check face vector from device is same identity from database
         #if not same, add new identity to SQL table FaceIDStore
-        threshold = 1.062 #0.75
+        threshold = 0.85  #1.062 #0.75
         minimal_distance = threshold
         distance_each = []
         face_identity = False

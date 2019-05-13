@@ -1,0 +1,54 @@
+[33mcommit 9b2c73bbe9c1a77b0c0b0574e15ff80ead529a7e[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Merge: 0edb724 767b22e
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Mon May 13 21:55:22 2019 +0700
+
+    Merge branch 'master' of https://github.com/spfrank01/FaceDetectionProject
+
+[33mcommit 0edb724cdfa5cf705281534e4d8f4fc7172edf91[m
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Fri May 3 00:54:46 2019 +0700
+
+    fixed live page
+
+[33mcommit 767b22ebe5894d38fd88172a607ba27049759733[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: no1seedev <31799951+no1seedev@users.noreply.github.com>
+Date:   Thu May 2 19:03:08 2019 +0700
+
+    Update README.md
+
+[33mcommit 6b6ab62a82169562792de501524fa278dd26fcfc[m
+Author: no1seedev <31799951+no1seedev@users.noreply.github.com>
+Date:   Thu May 2 19:02:54 2019 +0700
+
+    Update README.md
+
+[33mcommit 1e2177c2d5275e46db6694dfa7830c7dcf0b279e[m
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Wed May 1 21:51:28 2019 +0700
+
+    fixed problem of CCTV Live page
+
+[33mcommit 85e0b63f3771d18f0ff14d18cc03af461fea2ceb[m
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Tue Apr 30 21:05:25 2019 +0700
+
+    search can see time normal format and can add new student
+
+[33mcommit f34f5f1d8e280e06efc46c06c5df6bdc11e37c8d[m
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Sun Apr 28 09:00:06 2019 +0700
+
+    add css of templates
+
+[33mcommit ba6df2b36e9c0411ce00e744d0190bd5a8f119f4[m
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Fri Mar 29 22:23:12 2019 +0700
+
+    cleaning code
+
+[33mcommit f1f2304ea5df309060d43bc1b5030f6e471e3929[m
+Author: spfrank01 <sptunjai@gmail.com>
+Date:   Fri Mar 29 22:08:06 2019 +0700
+
+    first commit
