@@ -1,10 +1,9 @@
-import datetime
 import logging
 import os
+import sqlalchemy
 
 from flask import Flask, render_template, request, Response
 from flask_socketio import SocketIO, emit
-import sqlalchemy
 from scipy.spatial import distance
 
 # Remember - storing secrets in plaintext is potentially unsafe. Consider using
@@ -106,6 +105,8 @@ def test_message(message):
 
 
 # validate id match of format
+# in actually, we not need to check it
+# we will bypass it in this version
 def is_id(n):
     return True
 
@@ -148,9 +149,8 @@ def add_new_student():
 
 @app.route('/add_camera_logs', methods=['POST'])
 def add_camera_logs():
-    return_data = []
     logging.error("add_camera_logs")
-    if not request.json or not 'logs' in request.json:
+    if not request.json or 'logs' not in request.json:
         return Response(
             status=400,
             response="not have json object or logs values in json"
@@ -158,8 +158,7 @@ def add_camera_logs():
     logs = request.json["logs"]
     full_image = request.json["full_image"]
 
-    # face_vector, face_id = get_face_vector_from_cloud_sql()
-    face_vector, face_id, face_name, sid, ncentroid = get_data_from_cloud_sql()
+    face_vector, face_id, face_name, sid, number_centroid = get_data_from_cloud_sql()
 
     face_id_array = []
     camera_id = ''
@@ -177,8 +176,11 @@ def add_camera_logs():
         # if not same, add new identity to SQL table FaceIDStore
         threshold = 0.85  # 1.062 #0.75
         minimal_distance = threshold
+
+        # set default value
         distance_each = []
-        face_identity = False
+        face_identity = 0
+        face_index_min_distance = 0
         for face_index, vector_each in enumerate(face_vector):
             # check length of this_emb and ref_emb, if not equal not do other task
             if len([float(i) for i in vector_each[1:-1].split(",")]) != len(
@@ -191,7 +193,7 @@ def add_camera_logs():
             if distance_cal < minimal_distance:
                 minimal_distance = distance_cal
                 face_identity = face_id[face_index]
-                face_index_out = face_index
+                face_index_min_distance = face_index
 
         distance_all.append(minimal_distance)
         distance_each_all.append(distance_each)
@@ -217,10 +219,10 @@ def add_camera_logs():
                     response="unsuccessful INSERT new Identity to cloud SQL"
                 )
         else:
-            n = ncentroid[face_index_out]
-            c = [float(i) for i in face_vector[face_index_out][1:-1].split(",")]
+            n = number_centroid[face_index_min_distance]
+            c = [float(i) for i in face_vector[face_index_min_distance][1:-1].split(",")]
             v = [float(i) for i in log['face_vector'][1:-1].split(",")]
-            newc = (n * c + v) / (n + 1)
+            new_centroid = (n * c + v) / (n + 1)
 
             stmt = sqlalchemy.text(
                 "UPDATE FaceIDStore"
@@ -230,7 +232,7 @@ def add_camera_logs():
             try:
                 with db.connect() as conn:
                     conn.execute(stmt,
-                                 face_vector=str(newc),
+                                 face_vector=str(new_centroid),
                                  number_centroid=int(n + 1),
                                  face_id=int(face_identity))
             except Exception as e:
@@ -241,12 +243,10 @@ def add_camera_logs():
                 )
 
             face_id_temp = ''
-            # if len(face_name[face_index_out]) > 0:
-            if face_name[face_index_out]:
-                face_id_temp += face_name[face_index_out] + '<br>'
-            # if len(sid[face_index_out]) > 0:
-            if sid[face_index_out]:
-                face_id_temp += str(sid[face_index_out]) + '<br>'
+            if face_name[face_index_min_distance]:
+                face_id_temp += face_name[face_index_min_distance] + '<br>'
+            if sid[face_index_min_distance]:
+                face_id_temp += str(sid[face_index_min_distance]) + '<br>'
 
             face_id_array.append(face_id_temp + str(face_identity))
 
@@ -268,8 +268,6 @@ def add_camera_logs():
                 status=500,
                 response="unsuccessful INSERT logs from device to cloud SQL"
             )
-    print(distance_all)
-    distance_each_all
     try:
         live_data = {
             "camera_id": camera_id,  # String
@@ -291,6 +289,7 @@ def add_camera_logs():
             response="Emit broadcast error"
         )
 
+    return_data = []
     return_data.append({'distance_all': distance_all})
     return_data.append({'distance_each_all': distance_each_all})
     return_data.append({'live_data': live_data})
