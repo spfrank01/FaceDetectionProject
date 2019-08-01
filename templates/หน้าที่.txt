@@ -1,4 +1,0 @@
-layout.html 	กำหนด layout หลักของ 3หน้าข้างล่าง 
-graph.html	แสดงกราฟ
-live.html	แสดงสด มีรูปและID
-search.html	แสดงการค้นหา ใส่ keyword แล้วจะได้เวลาและรูปภาพมา
